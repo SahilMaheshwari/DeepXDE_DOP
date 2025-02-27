@@ -6,10 +6,22 @@ import math
 
 torch.set_default_device("cpu")
 
-I = 10
-r_1, m_1, h_1 = 1.2, 0.008, 0.006
-r_2, h_2, m_2, c1 = 0.06, 0.005, 0.01, 0.0005
-r_3, h_3, m_3, c2 = 0.0, 0.00, 0.01, 0.00
+import torch
+
+I = torch.tensor(10.0, requires_grad=True, dtype=torch.float32)
+r_1 = torch.tensor(1.2, requires_grad=True, dtype=torch.float32)
+m_1 = torch.tensor(0.008, requires_grad=True, dtype=torch.float32)
+h_1 = torch.tensor(0.006, requires_grad=True, dtype=torch.float32)
+
+r_2 = torch.tensor(0.06, requires_grad=True, dtype=torch.float32)
+h_2 = torch.tensor(0.005, requires_grad=True, dtype=torch.float32)
+m_2 = torch.tensor(0.01, requires_grad=True, dtype=torch.float32)
+c1  = torch.tensor(0.0005, requires_grad=True, dtype=torch.float32)
+
+r_3 = torch.tensor(0.0, requires_grad=True, dtype=torch.float32)
+h_3 = torch.tensor(0.00, requires_grad=True, dtype=torch.float32)
+m_3 = torch.tensor(0.01, requires_grad=True, dtype=torch.float32)
+c2  = torch.tensor(0.00, requires_grad=True, dtype=torch.float32)
 
 n00 = 140 #0.9 Steady state
 n10 = 40 #0.5 Steady state
@@ -52,7 +64,7 @@ ic_n1 = dde.icbc.IC(geom, lambda x: n10, boundary, component=1)
 ic_n2 = dde.icbc.IC(geom, lambda x: n20, boundary, component=2)
 ic_n3 = dde.icbc.IC(geom, lambda x: n30, boundary, component=3)
 
-data = dde.data.PDE(geom, ode, [ic_n0, ic_n1, ic_n2, ic_n3], num_domain=1000, num_boundary=1500)
+data = dde.data.PDE(geom, ode, [ic_n0, ic_n1, ic_n2, ic_n3], num_domain=1000, num_boundary=2000)
 
 neurons = 40
 layers = 5
@@ -63,9 +75,12 @@ initialiser = "Glorot normal"
 net = dde.nn.FNN(layer_size, activation, initialiser)
 
 model = dde.Model(data, net)
-model.compile("adam", lr=0.001, loss_weights=[0.9, 0.9, 0.9, 0.9, 2, 2, 2, 2])
 
-losshistory, train_state = model.train(iterations=2000, display_every=10)
+optimizer = torch.optim.Adam([I, r_1, m_1, h_1, r_2, h_2, m_2, c1, r_3, h_3, m_3, c2], lr=0.001)
+
+model.compile(optimizer)
+
+losshistory, train_state = model.train(iterations=3000, display_every=50)
 
 dde.utils.external.plot_loss_history(losshistory)
 plt.show()
@@ -95,3 +110,16 @@ plt.ylabel(r"population")
 plt.xlabel(r"$t$")
 plt.title("Lotka-Volterra numerical solution using PINNs method")
 plt.show()
+
+print(f"Estimated I: {I.item()}")
+print(f"Estimated r_1: {r_1.item()}")
+print(f"Estimated m_1: {m_1.item()}")
+print(f"Estimated h_1: {h_1.item()}")
+print(f"Estimated r_2: {r_2.item()}")
+print(f"Estimated h_2: {h_2.item()}")
+print(f"Estimated m_2: {m_2.item()}")
+print(f"Estimated c1: {c1.item()}")
+print(f"Estimated r_3: {r_3.item()}")
+print(f"Estimated h_3: {h_3.item()}")
+print(f"Estimated m_3: {m_3.item()}")
+print(f"Estimated c2: {c2.item()}")
