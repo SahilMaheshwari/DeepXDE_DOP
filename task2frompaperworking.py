@@ -8,7 +8,6 @@ if torch.cuda.is_available():
     torch.set_default_device("cuda")
 
 
-
 alpha = 2/3 #reprodcution rate of x
 beta = 4/3 #loss of x cause of y
 gamma = 1 #gain of y cause of x

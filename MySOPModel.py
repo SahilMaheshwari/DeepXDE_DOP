@@ -5,29 +5,44 @@ import deepxde as dde
 import math
 
 if torch.cuda.is_available():
-    torch.set_default_device("cuda")
+    torch.set_default_device("cpu")
 
 
-I   = 1000
-r_1 = 2.1
-m_1 = 0.0001 
-h_1 = 0.9
-r_2 = 0.9 
-h_2 = 0.1 
-r_3 = 1.2
-h_3 = 0.01
-m_2 = 0.008
-m_3 = 0.004
-c1  = 0.002
-c2  = 0.004
+I   = 10000
 
-n00 = 1000 #0.9 Steady state
-n10 = 500 #0.5 Steady state
-n20 = 15
-n30 = 10
+r_1 = 1.0
+m_1 = 0
+h_1 = 0.002
+
+r_2 = 0.06 
+h_2 = 0.005 
+m_2 = 0.0012
+c1  = 0.0005
+
+r_3 = 0.09
+h_3 = 0.001
+m_3 = 0.0004
+c2  = c1
+
+I  = 50000   # Increase I to ensure n0 > 0
+r_1= 5.0   # Increase r_1
+m_1= 0  
+r_2= 1.2   # Increase r_2
+h_2= 0.002 # Reduce h_2
+m_2= 0.0001 # Reduce m_2
+c1 = 0.0002  # Reduce c1
+r_3= 1.5   # Increase r_3
+h_3= 0.002 # Reduce h_3
+m_3= 0.0001  # Reduce m_3
+
+n00 = 0 #0.9 Steady state
+n10 = 0 #0.5 Steady state
+n20 = 0
+n30 = 0
 
 t_initial = 0
-t_final = 10
+t_final = 0.001
+
 
 def ode(t, Y):
     n0 = Y[:, 0:1]
@@ -57,11 +72,10 @@ ic_n1 = dde.icbc.IC(geom, lambda x: n10, boundary, component=1)
 ic_n2 = dde.icbc.IC(geom, lambda x: n20, boundary, component=2)
 ic_n3 = dde.icbc.IC(geom, lambda x: n30, boundary, component=3)
 
-
 data = dde.data.PDE(geom, ode, [ic_n0, ic_n1, ic_n2, ic_n3], num_domain=512, num_boundary=4)
 
-neurons = 64
-layers = 32
+neurons = 16
+layers = 4
 layer_size = [1] + [neurons] * layers + [4]
 
 activation = "ReLU"
@@ -69,9 +83,10 @@ initialiser = "Glorot normal"
 net = dde.nn.FNN(layer_size, activation, initialiser)
 
 model = dde.Model(data, net)
-model.compile("adam", lr=0.001)
+model.compile("adam", lr=0.0001)
 
-losshistory, train_state = model.train(iterations=50000, display_every=500)
+losshistory, train_state = model.train(iterations=1500, display_every=100)
+
 
 dde.utils.external.plot_loss_history(losshistory)
 plt.show()
