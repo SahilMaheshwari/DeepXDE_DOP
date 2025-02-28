@@ -61,3 +61,13 @@ for n1_ss in sorted(solutions):
     print(f"n2: {n2_ss}")
     print(f"n3: {n3_ss}")
 
+
+def quadratic_roots(a, b, c):
+    # Calculate the discriminant
+    discriminant = b**2 - 4*a*c
+
+    # Find two solutions
+    sol1 = (-b - sp.sqrt(discriminant)) / (2 * a)
+    sol2 = (-b + sp.sqrt(discriminant)) / (2 * a)
+
+    return sol
