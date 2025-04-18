@@ -83,12 +83,10 @@ t_test = np.array([[t_initial]])  # Check only at initial time
 predicted_initial = model.predict(t_test)
 print("Predicted Initial Conditions:", predicted_initial)
 
-
 plt.plot(t_array, n0_pinn.flatten(), color="green", label=r"$x(t)$ PINNs, basal")
 plt.plot(t_array, n1_pinn.flatten(), color="blue", label=r"$y(t)$ PINNs, prey")
 plt.plot(t_array, n2_pinn.flatten(), color="red", label=r"$y(t)$ PINNs, predator 1")
 plt.plot(t_array, n3_pinn.flatten(), color="orange", label=r"$y(t)$ PINNs, predator 2")
-
 
 plt.legend()
 plt.ylabel(r"population")
